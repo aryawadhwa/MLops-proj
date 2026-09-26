@@ -1,4 +1,4 @@
-# 🌍 EcoSentinel: Satellite Monitoring for Environmental Protection
+# EcoSentinel: Satellite Monitoring for Environmental Protection
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2.svg)](https://mlflow.org/)
@@ -11,7 +11,7 @@ This repository serves as our Phase 1 prototype and focuses on the **Vrishabhava
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 - [The Problem & Our Solution](#the-problem--our-solution)
 - [MLOps Architecture](#mlops-architecture)
 - [Repository Structure](#repository-structure)
@@ -22,7 +22,7 @@ This repository serves as our Phase 1 prototype and focuses on the **Vrishabhava
 
 ---
 
-## 🚨 The Problem & Our Solution
+## The Problem & Our Solution
 ### The Crisis
 The Vrishabhavathi River acts as a primary carrier for unauthorized industrial effluents and untreated waste. Traditional monitoring relies on manual inspections and localized water sampling, meaning contamination often goes undetected for weeks until immense ecological damage is done.
 
@@ -35,7 +35,7 @@ The model flags anomalous coordinates, acting as an early-warning system for aut
 
 ---
 
-## ⚙️ MLOps Architecture
+## MLOps Architecture
 This project strictly adheres to MLOps best practices to ensure reproducibility and scalability:
 1. **Data Versioning:** Massive `.tiff` satellite files are versioned outside of Git using **DVC (Data Version Control)**.
 2. **Experiment Tracking:** All model hyperparameter tuning, feature engineering variations, and performance metrics (F1, Recall) are logged via **MLflow**.
@@ -43,7 +43,7 @@ This project strictly adheres to MLOps best practices to ensure reproducibility 
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 ├── data/
@@ -62,7 +62,7 @@ This project strictly adheres to MLOps best practices to ensure reproducibility 
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Python 3.9 or higher
@@ -86,7 +86,7 @@ This project strictly adheres to MLOps best practices to ensure reproducibility 
 
 ---
 
-## 🗄️ Data Versioning (DVC)
+## Data Versioning (DVC)
 Due to the sheer size of geospatial data, we do not push `.tiff` files or large datasets to GitHub. Instead, we use DVC.
 
 1. Ensure your Google Drive or AWS S3 credentials are set up (ask your team lead for the remote bucket link).
@@ -97,7 +97,7 @@ Due to the sheer size of geospatial data, we do not push `.tiff` files or large 
 
 ---
 
-## 📊 Experiment Tracking (MLflow)
+## Experiment Tracking (MLflow)
 To view our model iterations and baseline experiments:
 1. Run the MLflow UI server locally:
    ```bash
@@ -107,5 +107,5 @@ To view our model iterations and baseline experiments:
 
 ---
 
-## 👥 Team & Phase 1 Goals
+## Team & Phase 1 Goals
 Please refer to the [Phase 1 Team Plan](docs/Phase_1_Team_Plan.md) in the `/docs` folder for specific tasks and assignments leading up to the Phase 1 Review (Oct 13 - Oct 17). 
