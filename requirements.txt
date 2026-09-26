@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+jupyter
+dvc
+dvc-gdrive # if using google drive for remote storage
+dvc-s3 # if using s3 for remote storage
+mlflow
+rasterio
+geopandas
+shapely
