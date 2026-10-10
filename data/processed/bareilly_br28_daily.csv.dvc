@@ -1,0 +1,5 @@
+outs:
+- md5: 1a79b52494edc0d758f0e072e76be956
+  size: 24779
+  hash: md5
+  path: bareilly_br28_daily.csv
