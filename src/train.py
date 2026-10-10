@@ -70,7 +70,7 @@ def main():
             mlflow.log_param('model_type', name)
             mlflow.log_metric('mae', mae)
             mlflow.log_metric('rmse', rmse)
-            mlflow.sklearn.log_model(model, "model")
+            mlflow.sklearn.log_model(model, "model", serialization_format="cloudpickle")
             
     print("Training complete. Run 'mlflow ui' to view the results.")
 
