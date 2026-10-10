@@ -1,111 +1,116 @@
-# EcoSentinel: Satellite Monitoring for Environmental Protection
+# CarbonCalc
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![MLflow](https://img.shields.io/badge/MLflow-Tracking-0194E2.svg)](https://mlflow.org/)
-[![DVC](https://img.shields.io/badge/DVC-Data_Versioning-945DD6.svg)](https://dvc.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+CarbonCalc is a project focused on helping households and organizations understand their environmental impact and identify ways to reduce it.
 
-**EcoSentinel** is a robust, end-to-end MLOps pipeline designed to continuously scan multi-spectral satellite imagery. Our mission is to automate the detection of illegal waste dumping and water contamination before the environmental damage spreads.
+The long-term idea is to collect information about activities such as electricity consumption, transportation, water usage, food consumption and physical waste. This information can be used to estimate environmental impact and, eventually, identify patterns and forecast future consumption.
 
-This repository serves as our Phase 1 prototype and focuses on the **Vrishabhavathi-Arkavathi river basin** in Karnataka, India—an ecosystem currently suffering from severe industrial effluent dumping.
+For the initial MLOps phase, we are starting with one specific part of the project: **forecasting household electricity consumption using Indian smart-meter data**.
 
----
+## Current Scope
 
-## Table of Contents
-- [The Problem & Our Solution](#the-problem--our-solution)
-- [MLOps Architecture](#mlops-architecture)
-- [Repository Structure](#repository-structure)
-- [Getting Started (Installation)](#getting-started)
-- [Data Versioning (DVC)](#data-versioning-dvc)
-- [Experiment Tracking (MLflow)](#experiment-tracking-mlflow)
-- [Team & Phase 1 Goals](#team--phase-1-goals)
+Phase 1 focuses on building a basic, reproducible machine-learning pipeline. Rather than trying to implement every feature of CarbonCalc at once, we are first establishing the data and modelling workflow that the rest of the project can build on.
 
----
+Our initial task is to use historical daily electricity consumption to predict next-day consumption and evaluate the predictions on a later, unseen period.
 
-## The Problem & Our Solution
-### The Crisis
-The Vrishabhavathi River acts as a primary carrier for unauthorized industrial effluents and untreated waste. Traditional monitoring relies on manual inspections and localized water sampling, meaning contamination often goes undetected for weeks until immense ecological damage is done.
+## Dataset
 
-### The EcoSentinel Solution
-By processing high-resolution Sentinel-2 satellite imagery, we use machine learning to extract key ecological indicators:
-- **NDWI (Normalized Difference Water Index):** Isolates water bodies to track effluent discoloration.
-- **NDVI (Normalized Difference Vegetation Index):** Detects unnatural, profuse weed/algae growth caused by chemical dumping.
+We are using the *What Smart Meters Can Tell Us: Insights on Electricity Supply and Use in Mathura and Bareilly Households* dataset, published by the Council on Energy, Environment and Water (CEEW).
 
-The model flags anomalous coordinates, acting as an early-warning system for authorities.
+- **Dataset source:** [Harvard Dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/GOCHJH)
+- **Geographic coverage:** Mathura and Bareilly, Uttar Pradesh, India.
+- **Original observation frequency:** Three-minute intervals.
+- **Available period:** Approximately 2019–2021, depending on the meter and location.
+- **Initial selection:** Bareilly meter BR28.
 
----
+We selected BR28 for the first experiment because its daily aggregated data has relatively high date coverage and no recorded zero-consumption days in the initial audit.
 
-## MLOps Architecture
-This project strictly adheres to MLOps best practices to ensure reproducibility and scalability:
-1. **Data Versioning:** Massive `.tiff` satellite files are versioned outside of Git using **DVC (Data Version Control)**.
-2. **Experiment Tracking:** All model hyperparameter tuning, feature engineering variations, and performance metrics (F1, Recall) are logged via **MLflow**.
-3. **Automated Pipelines:** Data ingestion, feature extraction, and model inference are connected in a continuous, reproducible pipeline.
+The source dataset contains daily aggregated readings as well as higher-frequency measurements. We compared daily totals calculated from the raw three-minute readings with the published aggregated data for overlapping dates in 2020 and 2021. The values matched exactly for the dates checked.
 
----
+### Dataset limitations
+
+The selected data represents one household meter in Bareilly. It is useful for developing and testing the initial forecasting pipeline, but it is not representative of every Indian household.
+
+The observations are also historical, and some calendar dates are missing. These gaps must be handled carefully rather than automatically treating missing readings as zero.
+
+## Work Completed
+
+### 1. Dataset acquisition and inspection
+
+- Obtained the CEEW smart-meter dataset and read its accompanying documentation.
+- Inspected the available raw and aggregated CSV files.
+- Examined column names, dataset sizes, missing values and duplicate records.
+- Compared date coverage and zero-consumption readings across meters in Mathura and Bareilly.
+
+### 2. Meter selection
+
+Bareilly was selected for the initial experiment because its aggregated dataset showed better overall date coverage than Mathura in our initial audit.
+
+Meter BR28 was selected for the first experiment based on its observed history and data-quality checks. Other meters will remain candidates for later experiments.
+
+### 3. Aggregation validation
+
+We compared the published daily readings for BR28 against the sums of its raw three-minute electricity-consumption readings for overlapping dates in 2020 and 2021.
+
+The mean and maximum absolute differences were both 0.0 kWh for the dates compared. This supports the aggregation method for those dates, although it does not establish that every reading in the full dataset has been independently validated.
+
+### 4. Initial preprocessing
+
+A Python preprocessing script was created at `src/preprocess.py`.
+
+It:
+- Selects meter BR28 from the aggregated Bareilly dataset.
+- Converts dates and electricity-consumption values to the appropriate data types.
+- Removes rows with invalid dates or consumption values.
+- Checks for duplicate dates and negative consumption.
+- Retains the date and daily electricity-consumption columns.
+- Saves the resulting dataset to `data/processed/bareilly_br28_daily.csv`.
+
+The resulting dataset contains **827 daily observations**, covering 17 July 2019 to 31 October 2021.
+
+The processed CSV has no missing cells or duplicate dates. There are still 11 missing calendar dates, which have not been filled with artificial zero values.
 
 ## Repository Structure
 
 ```text
+CarbonCalc/
 ├── data/
-│   ├── raw/           # Raw, immutable satellite imagery (tracked via DVC)
-│   └── processed/     # Cleaned, engineered datasets (NDWI, NDVI)
-├── docs/              # Project documentation and phase plans
-├── notebooks/         # Jupyter notebooks for EDA and prototyping
-├── src/               # Source code for the ML pipeline
-│   ├── data/          # Scripts to fetch and clean data
-│   ├── features/      # Scripts to extract spectral features
-│   └── models/        # Scripts to train and predict (tracked via MLflow)
-├── tests/             # Unit and integration tests
-├── requirements.txt   # Python dependencies
-└── README.md          # Project overview (You are here)
+│   ├── raw/
+│   └── processed/
+│       └── bareilly_br28_daily.csv
+├── docs/
+│   └── dataset_card.md
+├── notebooks/
+├── src/
+│   ├── audit_dataset.py
+│   ├── check_meter_coverage.py
+│   ├── inspect_candidates.py
+│   ├── validate_aggregation.py
+│   └── preprocess.py
+├── reports/
+├── models/
+├── README.md
+├── LICENSE
+└── .gitignore
 ```
 
----
+This structure describes the intended project layout. Some directories may still be empty, and the dataset files are not listed individually because the raw data is stored separately from the code.
 
-## Getting Started
+## Planned Work
 
-### Prerequisites
-- Python 3.9 or higher
-- Git
+The next stages of Phase 1 are:
 
-### Installation
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/aryawadhwa/MLops-proj.git
-   cd MLops-proj
-   ```
-2. **Create and activate a virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use: venv\Scripts\activate
-   ```
-3. **Install the required dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+1. Finalize the dataset documentation and selection criteria.
+2. Configure DVC to track the raw and processed datasets.
+3. Commit the code and DVC metadata to Git and push the repository to GitHub.
+4. Perform exploratory data analysis (EDA).
+5. Develop forecasting features, including historical consumption and calendar information.
+6. Establish a simple baseline and train Random Forest and Gradient Boosting regressors.
+7. Evaluate the models using a chronological train/test split and metrics such as MAE and RMSE.
+8. Use MLflow to record experiment parameters and evaluation metrics.
+9. Document how to reproduce the workflow and its results.
 
----
+## Team Approach
 
-## Data Versioning (DVC)
-Due to the sheer size of geospatial data, we do not push `.tiff` files or large datasets to GitHub. Instead, we use DVC.
+CarbonCalc is being developed as a team project. The aim is to build the pipeline incrementally, understand the decisions behind each stage, and keep the code and experiments reproducible so that other team members can inspect and extend the work.
 
-1. Ensure your Google Drive or AWS S3 credentials are set up (ask your team lead for the remote bucket link).
-2. Pull the latest dataset versions:
-   ```bash
-   dvc pull
-   ```
-
----
-
-## Experiment Tracking (MLflow)
-To view our model iterations and baseline experiments:
-1. Run the MLflow UI server locally:
-   ```bash
-   mlflow ui
-   ```
-2. Open your browser and navigate to `http://localhost:5000` to view the dashboards.
-
----
-
-## Team & Phase 1 Goals
-Please refer to the [Phase 1 Team Plan](docs/Phase_1_Team_Plan.md) in the `/docs` folder for specific tasks and assignments leading up to the Phase 1 Review (Oct 13 - Oct 17). 
+The current implementation is an initial forecasting experiment, not a completed production system. The wider CarbonCalc application, additional environmental categories, recommendations and longer-term forecasting remain future work.
